@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { testAuthorize } from './sonosAuthorize';
+import { createAuthorize } from './sonosAuthorize';
 
 class App extends Component {
   renderButton() {
@@ -21,7 +21,7 @@ class LoginButton extends Component {
     // call sonos authorization here
     // if authorization successful return some information
     // to the console and send a window alert that says success.
-    testAuthorize();
+    createAuthorize();
   }
   render() {
     return (
