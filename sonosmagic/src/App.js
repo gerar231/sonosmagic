@@ -1,51 +1,21 @@
-import React, { Component } from 'react';
+import React from 'react';
+import {Component} from 'react';
 import './app.css';
 import './common.css';
 import logo from './sonos-family-logo.png'
 import {createAuthorize} from './sonosAuthorize.js';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <Navigation pageId="WelcomeView"/>
+        <WelcomeView/>
       </div>
     );
   }
 }
 
-class Navigation extends Component {
-  constructor(props) {
-    super(props);
-    this.getView = this.getView.bind(this);
-    this.setView = this.setView.bind(this);
-    this.state = {currentView: this.getView(props.pageId)};
-  }
-  getView(pageId) {
-    switch(pageId) {
-      case 'WelcomeView':
-        return (<WelcomeView viewControl={this.setView}/>);
-      case 'ControlSelectView':
-        return (<ControlSelectView viewControl={this.setView}/>);
-      case 'GroupsSelectView':
-        return (<GroupsSelectView viewControl={this.setView}/>);
-      case 'MonitorView':
-        return (<MonitorView viewControl={this.setView}/>);
-      default: 
-        return (<WelcomeView viewControl={this.setView}/>);
-    }
-  }
-  setView(pageId) {
-    this.setState({currentView: this.getView(pageId)});
-  }
-  render() {
-    return (
-      <div className="spacing-height-full spacing-width-full">
-        {this.state.currentView}
-      </div>
-    )
-  }
-}
 class ActionButton extends Component {
   constructor(props) {
     super(props);
@@ -64,8 +34,7 @@ class ActionButton extends Component {
 class View extends Component {
   constructor(props) {
     super(props)
-    this.state = {viewControl: props.viewControl};
-    this.state.viewControl = this.state.viewControl.bind(this);
+    this.state = {Monitor: props.Monitor};
   }
 }
 

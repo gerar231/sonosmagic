@@ -1,6 +1,6 @@
 export const createAuthorize = () => {
     var client_id = "3ca08a69-9582-48b9-9479-76a34805704e";
-    var redirect_uri = "http://localhost:3000";
+    var redirect_uri = "http://localhost:3000/control-select-view";
     var response_type = "code";
     var scope = "playback-control-all";
     var state = "RANDOM-STATE";
