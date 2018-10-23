@@ -9,21 +9,25 @@ import {createAuthorize} from './sonosAuthorize.js';
 
 const actionButton = "button large white small-6";
 const selectButton = "button large small-9";
-const viewerButton = "button transparent small-9";
+const viewerButton = "button transparent small-3";
+const startButton = "btn btn-reset teal small-6";
+const stopButton = "btn large btn-search small-6";
 
 class App extends Component {
   render() {
     var mic = <Icon outerClass="large-icon" innerClass="icon-mic"/>;
     var vol = <Icon outerClass="large-icon" innerClass="icon-volume"/>;
     var home = <Icon outerClass="large-icon" innerClass="icon-home-music white"/>;
+    var start = <Icon outerClass="large-icon" innerClass="icon-ok"/>;
+    var stop = <Icon outerClass="large-icon" innerClass="icon-minus"/>;
     return (
       <div className="App">
         {  /* <WelcomeView/>  
-           <ControlSelectView icon={home}/> */
+           <ControlSelectView icon={home}/> 
             <GroupsSelectView question={"Where are you?"} icon={vol} groups={['Living Room', 'Kitchen', 'Study', 'Lounge']}/>
-            /* <GroupsSelectView question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']}/>
-            <MonitorView monitor="Living Room" source="Study"/>
-        */}
+            <GroupsSelectView question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']}/> */
+            <MonitorView monitor={"Living Room"} monitorIcon={mic} source={"Study"} sourceIcon={vol} startIcon={start} stopIcon={stop} homeIcon={home}/>
+        }
       </div>
     );
   }
@@ -158,27 +162,37 @@ class GroupsSelectView extends View {
 class MonitorView extends View {
   constructor(props) {
     super(props);
-    this.state = {monitor: "",
-                  monitorIcon: "",
-                  source: "",
-                  sourceIcon: "",
-                  homeIcon: ""}
+    this.state = {monitor: props.monitor,
+                  monitorIcon: props.monitorIcon,
+                  source: props.source,
+                  sourceIcon: props.sourceIcon,
+                  startIcon: props.startIcon,
+                  stopIcon: props.stopIcon,
+                  homeIcon: props.homeIcon}
   }
   render() {
     return(
       <div className="bg-gray-light spacing-height-full spacing-width-full vert-align-parent">
         <div className="row vert-align-child">
           <div className="columns small-12 small-center text-center">
-          <div className="row">
-            {this.icon}
+          <div className="columns small-9 small-centered">
+            {this.state.monitorIcon}
             <Button text={this.state.monitor} className={viewerButton}/> 
           </div>
-          <div className="row">
+          <div className="columns small-9 small-centered">
             {this.state.sourceIcon}
-            <Button text={this.state.source}
+            <Button text={this.state.source} className={viewerButton}/>
           </div>
-          <div className="row">
-            
+          <div className="columns small-9 small-centered">
+            <div className="spacing-ma-l"> 
+              <Button text={this.state.startIcon} className={startButton}/>
+            </div>
+            <div className="spacing-ma-l"> 
+              <Button text={this.state.stopIcon} className={stopButton}/>
+            </div>
+            <div className="spacing-ma-l"> 
+              <Button text={this.state.homeIcon} className={selectButton}/>
+            </div>
           </div>
           </div>
         </div>

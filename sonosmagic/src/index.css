@@ -9,6 +9,10 @@
   padding: 1rem;
 }
 
+.teal {
+ color: #00baae; 
+}
+
 .vert-align-parent {
   display: table;
 }
