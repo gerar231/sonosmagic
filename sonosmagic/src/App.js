@@ -6,25 +6,39 @@ import logo from './sonos-family-logo.png'
 import {createAuthorize} from './sonosAuthorize.js';
 /* import { BrowserRouter as Router, Route, Link } from "react-router-dom"; */
 
+
+const actionButton = "button large white small-6";
+const selectButton = "button large small-9";
+const viewerButton = "button transparent small-9";
+
 class App extends Component {
   render() {
+    var mic = <Icon outerClass="large-icon" innerClass="icon-mic"/>;
+    var vol = <Icon outerClass="large-icon" innerClass="icon-volume"/>;
+    var home = <Icon outerClass="large-icon" innerClass="icon-home-music white"/>;
     return (
       <div className="App">
-        <ControlSelectView/>
+        {  /* <WelcomeView/>  
+           <ControlSelectView icon={home}/> */
+            <GroupsSelectView question={"Where are you?"} icon={vol} groups={['Living Room', 'Kitchen', 'Study', 'Lounge']}/>
+            /* <GroupsSelectView question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']}/>
+            <MonitorView monitor="Living Room" source="Study"/>
+        */}
       </div>
     );
   }
 }
 
-class ActionButton extends Component {
+class Button extends Component {
   constructor(props) {
     super(props);
-    this.state = {text: props.name};
+    this.state = {text: props.text,
+                  className: props.className};
     this.handleClick = props.onClick;
   }
   render() {
     return (
-      <a className="button white large small-6" href="#" onClick={this.handleClick}>
+      <a className={this.state.className} href="#" onClick={this.handleClick}>
          {this.state.text} 
       </a>
     );
@@ -48,9 +62,9 @@ class WelcomeView extends View {
         <div className="row vert-align-child">
           <div className="columns small-12 small-centered text-center">
             <div className="section-header">
-              <h2 className="white"> SONOS </h2>
-              <h2 className="white"> + </h2>
-              <h2 className="white"> FAMILY </h2>
+              <h1 className="white"> SONOS </h1>
+              <h1 className="white"> + </h1>
+              <h1 className="white"> FAMILY </h1>
             </div>
             <div className="row">
               <div className="columns">
@@ -58,7 +72,7 @@ class WelcomeView extends View {
               </div>
             </div>
             <div className="row">
-              <ActionButton name="LOGIN" onClick={(e) => this.fireAlert(e)}/>
+              <Button text="LOGIN" className={actionButton} onClick={(e) => this.fireAlert(e)}/>
             </div>
           </div>
         </div>
@@ -68,21 +82,23 @@ class WelcomeView extends View {
 }
 
 class ControlSelectView extends View {
+  constructor(props) {
+    super(props);
+    this.state = {icon: props.icon};
+  }
   render() {
     return (
       <div className="bg-black section spacing-height-full spacing-width-full vert-align-parent"> 
         <div className="row vert-align-child">
           <div className="columns small-12 small-centered text-center">
             <div className="row">
-            <div className="large-icon">
-              <span className="icon-home-music white"></span>
-            </div>
+              {this.state.icon}
             </div>
             <div className="row vert-padding-6vw">
-               <ActionButton name="Connect" onClick={(e) => window.alert("alert fired", e)}/> 
+               <Button text="Connect" className={actionButton} onClick={(e) => window.alert("alert fired", e)}/> 
             </div>
             <div className="row">
-              <ActionButton name="Monitor" onClick={(e) => window.alert("alert fired", e)}/>
+              <Button text="Monitor" className={actionButton} onClick={(e) => window.alert("alert fired", e)}/>
             </div>
           </div>
         </div>
@@ -91,16 +107,17 @@ class ControlSelectView extends View {
   }
 }
 
-class GroupButton extends Component {
+class Icon extends Component {
   constructor(props) {
     super(props);
-    this.state = {text: props.text}
+    this.state = {outerClass: props.outerClass,
+                  innerClass: props.innerClass};
   }
   render() {
-    return (
-    <a href="#" className="button large small-9" href="#" onClick={this.handleClick}>
-        {this.state.text}
-    </a>
+    return(
+      <div className={this.state.outerClass}>
+        <span className={this.state.innerClass}></span>
+      </div>
     );
   }
 }
@@ -111,13 +128,15 @@ class GroupsSelectView extends View {
     // get available speakers
     // update state of the monitor object 
     // on click handler for each tile here
-    this.state = {groups: ["Living Room", "Study", "Kitchen", "Bedroom"]};
+    this.state = {groups: props.groups,
+                  question: props.question,
+                  icon: props.icon};
   }
    
   render() {
     var buttons = this.state.groups.map(function(name) {
                     return <div className="row spacing-pa-l">
-                              <GroupButton text={name}/>
+                              <Button text={name} className={selectButton}/>
                             </div>;
                   });
     return(
@@ -125,12 +144,10 @@ class GroupsSelectView extends View {
         <div className="row vert-align-child">
           <div className="columns small-12 small-center text-center">
           <h2 className="title">
-            Where do you want to monitor?
+            {this.state.question}
           </h2>
-          <div className="large-icon">
-            <span className="icon-mic"></span>
-          </div>
-           {buttons}
+            {this.state.icon}
+            {buttons}
           </div>
         </div>
       </div>
@@ -139,13 +156,34 @@ class GroupsSelectView extends View {
 }
 
 class MonitorView extends View {
+  constructor(props) {
+    super(props);
+    this.state = {monitor: "",
+                  monitorIcon: "",
+                  source: "",
+                  sourceIcon: "",
+                  homeIcon: ""}
+  }
   render() {
     return(
-      <div>
-        this is Monitor
+      <div className="bg-gray-light spacing-height-full spacing-width-full vert-align-parent">
+        <div className="row vert-align-child">
+          <div className="columns small-12 small-center text-center">
+          <div className="row">
+            {this.icon}
+            <Button text={this.state.monitor} className={viewerButton}/> 
+          </div>
+          <div className="row">
+            {this.state.sourceIcon}
+            <Button text={this.state.source}
+          </div>
+          <div className="row">
+            
+          </div>
+          </div>
+        </div>
       </div>
-    )
+    );
   }
 }
-
 export default App;
