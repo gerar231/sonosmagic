@@ -98,7 +98,7 @@ class App extends Component {
               {/*Select monitor routes*/}
               <Route
                 path="/SelectMonitor"
-                render={props => <GroupsSelectView {...props} question={"Where are you?"} icon={vol} groups={groups} monitor={this.state.monitor.listener} routes={['/SelectSource', '/SelectMonitor', '/SelectMonitor', '/SelectMonitor']}/>}
+                render={props => <GroupsSelectView {...props} question={"Where are you?"} icon={vol} groups={groups} handler={this.setListener} routes={['/SelectSource', '/SelectMonitor', '/SelectMonitor', '/SelectMonitor']}/>}
               />
               <Route
                 path="/SelectSource"
@@ -142,7 +142,7 @@ class Button extends Component {
   }
   render() {
     return (
-      <a className={this.state.className} href={this.state.routePath}>
+      <a className={this.state.className} onClick={this.props.handler(this.state.text)} href={this.state.routePath}>
         {this.state.text} 
       </a>
     );
@@ -226,7 +226,7 @@ class GroupsSelectView extends View {
     var buttons = [];
     for (var i = 0; i < this.state.groups.length; i++) {
       buttons.push(<div className="row spacing-pa-l">
-                      <Button text={this.state.groups[i]} className={selectButton} routePath={this.state.routes[i]}/>
+                      <Button text={this.state.groups[i]} className={selectButton} onClick={this.props.handler} routePath={this.state.routes[i]}/>
                    </div>);
     }
     return(
