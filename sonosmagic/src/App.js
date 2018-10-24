@@ -4,29 +4,57 @@ import './app.css';
 import './common.css';
 import logo from './sonos-family-logo.png'
 import {createAuthorize} from './sonosAuthorize.js';
-/* import { BrowserRouter as Router, Route, Link } from "react-router-dom"; */
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 
 const actionButton = "button large white small-6";
 const selectButton = "button large small-9";
-const viewerButton = "button transparent small-3";
-const startButton = "btn btn-reset teal small-6";
-const stopButton = "btn large btn-search small-6";
+const viewerButton = "button transparent small-7 disp-inline-block";
+const startButton = "btn large small-3 disp-inline-block";
+const stopButton = "btn large btn-search small-3 disp-inline-block";
+const homeButton = "btn large small-3 disp-inline-block";
 
 class App extends Component {
   render() {
     var mic = <Icon outerClass="large-icon" innerClass="icon-mic"/>;
     var vol = <Icon outerClass="large-icon" innerClass="icon-volume"/>;
+    var mic2 = <Icon outerClass="large-icon disp-inline-block" innerClass="icon-mic"/>;
+    var vol2 = <Icon outerClass="large-icon disp-inline-block" innerClass="icon-volume"/>;
     var home = <Icon outerClass="large-icon" innerClass="icon-home-music white"/>;
-    var start = <Icon outerClass="large-icon" innerClass="icon-ok"/>;
-    var stop = <Icon outerClass="large-icon" innerClass="icon-minus"/>;
+    var start = <Icon outerClass="small-icon disp-inline-block teal" innerClass="icon-ok"/>;
+    var stop = <Icon outerClass="large-icon disp-inline-block satusma" innerClass="icon-cancel-circled"/>;
+    var home2 = <Icon outerClass="large-icon" innerClass="icon-home-music"/>;
     return (
       <div className="App">
-        {  /* <WelcomeView/>  
-           <ControlSelectView icon={home}/> 
+        {  
+           <Router>
+             <div className="spacing-height-full">
+               <Route
+                  exact path="/"
+                  render={props => <WelcomeView {...props} routes={['/SelectControl']}/>}
+                />
+               <Route
+                  path="/SelectControl"
+                  render={props => <ControlSelectView {...props} icon={home} routes={['/SelectControl', '/SelectMonitor']}/>}
+                />
+               <Route
+                  path="/SelectMonitor"
+                  render={props => <GroupsSelectView {...props} questions={"Where are you?"} icon={vol} groups={['Living Room', 'Kitchen', 'Study', 'Lounge']} routes={['/SelectSource', '/SelectMonitor', '/SelectMonitor', '/SelectMonitor']}/>}
+                />
+               <Route
+                  path="/SelectSource"
+                  render={props => <GroupsSelectView {...props} question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']} routes={['/SelectSource', "/Monitor", '/SelectSource']}/>}
+                />
+               <Route
+                  path="/Monitor"
+                  render={props => <MonitorView {...props} monitor={'Living Room'} monitorIcon={mic2} source={"Study"} sourceIcon={vol2} startIcon={start} stopIcon={stop} homeIcon={home2} routes={['/SelectMonitor', "/SelectSource", '/Monitor', '/Monitor', '/SelectControl']}/>}
+                />
+             </div>
+           </Router>  
+           /* <ControlSelectView icon={home}/> 
             <GroupsSelectView question={"Where are you?"} icon={vol} groups={['Living Room', 'Kitchen', 'Study', 'Lounge']}/>
-            <GroupsSelectView question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']}/> */
-            <MonitorView monitor={"Living Room"} monitorIcon={mic} source={"Study"} sourceIcon={vol} startIcon={start} stopIcon={stop} homeIcon={home}/>
+            <GroupsSelectView question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']}/> 
+             <MonitorView monitor={"Living Room"} monitorIcon={mic2} source={"Study"} sourceIcon={vol2} startIcon={start} stopIcon={stop} homeIcon={home2}/> */
         }
       </div>
     );
@@ -37,13 +65,13 @@ class Button extends Component {
   constructor(props) {
     super(props);
     this.state = {text: props.text,
-                  className: props.className};
-    this.handleClick = props.onClick;
+                  className: props.className,
+                  routePath: props.routePath};
   }
   render() {
     return (
-      <a className={this.state.className} href="#" onClick={this.handleClick}>
-         {this.state.text} 
+      <a className={this.state.className} href={this.state.routePath}>
+        {this.state.text} 
       </a>
     );
   }
@@ -52,14 +80,12 @@ class Button extends Component {
 class View extends Component {
   constructor(props) {
     super(props)
-    this.state = {Monitor: props.Monitor};
+    this.state = {monitor: props.monitor, 
+                  routes: props.routes};
   }
 }
 
 class WelcomeView extends View {
-  fireAlert() {
-    window.alert("fired alert.");
-  }
   render() {
     return (
       <div className="bg-black section spacing-height-full spacing-width-full vert-align-parent">
@@ -76,7 +102,7 @@ class WelcomeView extends View {
               </div>
             </div>
             <div className="row">
-              <Button text="LOGIN" className={actionButton} onClick={(e) => this.fireAlert(e)}/>
+              <Button text="LOGIN" className={actionButton} routePath={this.props.routes[0]}/>
             </div>
           </div>
         </div>
@@ -99,10 +125,10 @@ class ControlSelectView extends View {
               {this.state.icon}
             </div>
             <div className="row vert-padding-6vw">
-               <Button text="Connect" className={actionButton} onClick={(e) => window.alert("alert fired", e)}/> 
+               <Button text="Connect" className={actionButton} routePath={this.props.routes[0]}/> 
             </div>
             <div className="row">
-              <Button text="Monitor" className={actionButton} onClick={(e) => window.alert("alert fired", e)}/>
+              <Button text="Monitor" className={actionButton} routePath={this.props.routes[1]}/>
             </div>
           </div>
         </div>
@@ -134,15 +160,17 @@ class GroupsSelectView extends View {
     // on click handler for each tile here
     this.state = {groups: props.groups,
                   question: props.question,
-                  icon: props.icon};
+                  icon: props.icon,
+                  routes: props.routes};
   }
    
   render() {
-    var buttons = this.state.groups.map(function(name) {
-                    return <div className="row spacing-pa-l">
-                              <Button text={name} className={selectButton}/>
-                            </div>;
-                  });
+    var buttons = [];
+    for (var i = 0; i < this.state.groups.length; i++) {
+      buttons.push(<div className="row spacing-pa-l">
+                      <Button text={this.state.groups[i]} className={selectButton} routePath={this.state.routes[i]}/>
+                   </div>);
+    }
     return(
       <div className="bg-gray-light spacing-height-full spacing-width-full vert-align-parent">
         <div className="row vert-align-child">
@@ -170,30 +198,30 @@ class MonitorView extends View {
                   stopIcon: props.stopIcon,
                   homeIcon: props.homeIcon}
   }
+  startClick() {
+    window.alert("Now monitoring " + this.state.source + " from " + this.state.monitor);
+  }
+  stopClick() {
+    window.alert("Monitoring stopped.");
+  }
   render() {
     return(
       <div className="bg-gray-light spacing-height-full spacing-width-full vert-align-parent">
         <div className="row vert-align-child">
-          <div className="columns small-12 small-center text-center">
-          <div className="columns small-9 small-centered">
-            {this.state.monitorIcon}
-            <Button text={this.state.monitor} className={viewerButton}/> 
-          </div>
-          <div className="columns small-9 small-centered">
-            {this.state.sourceIcon}
-            <Button text={this.state.source} className={viewerButton}/>
-          </div>
-          <div className="columns small-9 small-centered">
-            <div className="spacing-ma-l"> 
-              <Button text={this.state.startIcon} className={startButton}/>
+          <div className="columns small-12 small-center text-center"> 
+            <div className="columns small-12 spacing-mv-xxl">
+              {this.state.monitorIcon}
+              <Button text={this.state.monitor} className={viewerButton} routePath={this.props.routes[0]}/> 
             </div>
-            <div className="spacing-ma-l"> 
-              <Button text={this.state.stopIcon} className={stopButton}/>
+            <div className="columns small-12 spacing-mv-xxl">
+              {this.state.sourceIcon}
+              <Button text={this.state.source} className={viewerButton} routePath={this.props.routes[1]}/>
             </div>
-            <div className="spacing-ma-l"> 
-              <Button text={this.state.homeIcon} className={selectButton}/>
+            <div className="row small-12 spacing-mv-xxl">
+                <Button text={this.state.startIcon} className={startButton} onClick={(e) => {this.startClick(e)}} routePath={this.props.routes[2]}/>
+                <Button text={this.state.stopIcon} className={stopButton} onClick={(e) => {this.stopClick.bind(e)}} routePath={this.props.routes[3]}/>
+                <Button text={this.state.homeIcon} className={homeButton} routePath={this.props.routes[4]}/>
             </div>
-          </div>
           </div>
         </div>
       </div>

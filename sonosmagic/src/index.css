@@ -9,8 +9,17 @@
   padding: 1rem;
 }
 
+.small-icon {
+  font-size: 2.6rem;
+  padding: 1rem;
+}
+
 .teal {
  color: #00baae; 
+}
+
+.satusma {
+  color: #f0534a;
 }
 
 .vert-align-parent {
