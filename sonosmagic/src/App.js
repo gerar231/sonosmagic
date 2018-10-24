@@ -3,10 +3,11 @@ import {Component} from 'react';
 import './app.css';
 import './common.css';
 import logo from './sonos-family-logo.png'
-import {createAuthorize} from './sonosAuthorize.js';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import {createAuthorize} from './sonosAuthorize';
+import {getGroups, getConnectData} from './testHouse';
 
-
+// Various button styles 
 const actionButton = "button large white small-6";
 const selectButton = "button large small-9";
 const viewerButton = "button transparent small-7 disp-inline-block";
@@ -15,7 +16,59 @@ const stopButton = "btn large btn-search small-3 disp-inline-block";
 const homeButton = "btn large small-3 disp-inline-block";
 
 class App extends Component {
+  // initilize controller state
+  constructor(props) {
+    super(props);
+    this.state = {
+      house: {
+        groups: getGroups,
+        allReminders: getConnectData
+      },
+      connect: {
+        reminderType: null,
+        reminderText: null,
+        destination: null
+      },
+
+      monitor: {
+        listener: null,
+        source: null
+      }
+    };
+    this.getListenerOptions = this.getListenerOptions.bind(this);
+    this.getSourceOptions = this.getSourceOptions.bind(this);
+    this.setListener = this.setListener.bind(this);
+    this.setSource = this.setSource.bind(this);
+    this.setReminderType = this.setReminderType.bind(this);
+    this.setReminderText = this.setReminderText.bind(this);
+    this.setReminderDest = this.setReminderDest.bind(this);
+  }
+  // accessor and mutator methods for component calls
+  getListenerOptions() {
+    var copy = this.state.house.groups.slice(0);
+    return copy.remove(this.state.monitor.source);
+  }
+  getSourceOptions() {
+    var copy = this.state.house.groups.slice(0);
+    return copy.remove(this.state.monitor.listener);
+  }
+  setListener(choice) {
+    this.setState = {monitor: {listener: choice}};
+  }
+  setSource(choice) {
+    this.setState = {monitor: {source: choice}};
+  }
+  setReminderType(type) {
+    this.setState = {connect: {reminderType: type}};
+  }
+  setReminderText(text) {
+    this.setState = {connect: {reminderText: text}};
+  }
+  setReminderDest(choice) {
+    this.setState = {connect: {destination: choice}};
+  }
   render() {
+    // Icon styles for different views
     var mic = <Icon outerClass="large-icon" innerClass="icon-mic"/>;
     var vol = <Icon outerClass="large-icon" innerClass="icon-volume"/>;
     var mic2 = <Icon outerClass="large-icon disp-inline-block" innerClass="icon-mic"/>;
@@ -24,26 +77,32 @@ class App extends Component {
     var start = <Icon outerClass="small-icon disp-inline-block teal" innerClass="icon-ok"/>;
     var stop = <Icon outerClass="large-icon disp-inline-block satusma" innerClass="icon-cancel-circled"/>;
     var home2 = <Icon outerClass="large-icon" innerClass="icon-home-music"/>;
+    const groups = this.state.house.groups;
     return (
       <div className="App">
-        {  
+        { 
+          // Routes between different views. 
           <Router>
             <div className="spacing-height-full">
               <Route
                 exact path="/"
-                render={props => <WelcomeView {...props} routes={['/SelectControl']}/>}
+                render={props => <WelcomeView {...props} routes={[createAuthorize("http://localhost:3000/SelectControl")]}/>} // use createAuthorize function to perform psuedo-OAuth login
               />
               <Route
                 path="/SelectControl"
                 render={props => <ControlSelectView {...props} icon={home} routes={['/SelectControl', '/SelectMonitor']}/>}
               />
+              {/*Select connect routes*/}
+              
+
+              {/*Select monitor routes*/}
               <Route
                 path="/SelectMonitor"
-                render={props => <GroupsSelectView {...props} question={"Where are you?"} icon={vol} groups={['Living Room', 'Kitchen', 'Study', 'Lounge']} routes={['/SelectSource', '/SelectMonitor', '/SelectMonitor', '/SelectMonitor']}/>}
+                render={props => <GroupsSelectView {...props} question={"Where are you?"} icon={vol} groups={groups} monitor={this.state.monitor.listener} routes={['/SelectSource', '/SelectMonitor', '/SelectMonitor', '/SelectMonitor']}/>}
               />
               <Route
                 path="/SelectSource"
-                render={props => <GroupsSelectView {...props} question={"Where do you want to monitor?"} icon={mic} groups={['Kitchen', 'Study', 'Lounge']} routes={['/SelectSource', "/Monitor", '/SelectSource']}/>}
+                render={props => <GroupsSelectView {...props} question={"Where do you want to monitor?"} icon={mic} groups={this.state.house.groups} routes={['/SelectSource', "/Monitor", '/SelectSource', '/#']}/>}
               />
               <Route
                 path="/Monitor"
@@ -57,6 +116,23 @@ class App extends Component {
   }
 }
 
+// Generic Component for creating Icons
+class Icon extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {outerClass: props.outerClass,
+                  innerClass: props.innerClass};
+  }
+  render() {
+    return(
+      <div className={this.state.outerClass}>
+        <span className={this.state.innerClass}></span>
+      </div>
+    );
+  }
+}
+
+// Generic Component for creating Buttons
 class Button extends Component {
   constructor(props) {
     super(props);
@@ -73,6 +149,7 @@ class Button extends Component {
   }
 }
 
+// Super class of most views, tracks state of the user's controller during interaction.
 class View extends Component {
   constructor(props) {
     super(props)
@@ -81,6 +158,7 @@ class View extends Component {
   }
 }
 
+// Main view before logging in.
 class WelcomeView extends View {
   render() {
     return (
@@ -107,6 +185,7 @@ class WelcomeView extends View {
   }
 }
 
+// View for selecting the control system/function (Connect or Monitor)
 class ControlSelectView extends View {
   constructor(props) {
     super(props);
@@ -133,27 +212,10 @@ class ControlSelectView extends View {
   }
 }
 
-class Icon extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {outerClass: props.outerClass,
-                  innerClass: props.innerClass};
-  }
-  render() {
-    return(
-      <div className={this.state.outerClass}>
-        <span className={this.state.innerClass}></span>
-      </div>
-    );
-  }
-}
-
+// Generic view which has a title, icon and a group of options in button format.
 class GroupsSelectView extends View {
   constructor(props) {
     super(props);
-    // get available speakers
-    // update state of the monitor object 
-    // on click handler for each tile here
     this.state = {groups: props.groups,
                   question: props.question,
                   icon: props.icon,
@@ -183,6 +245,7 @@ class GroupsSelectView extends View {
   }
 }
 
+// Generic view for monitoring the system when controller settings have been selected.
 class MonitorView extends View {
   constructor(props) {
     super(props);
@@ -193,12 +256,6 @@ class MonitorView extends View {
                   startIcon: props.startIcon,
                   stopIcon: props.stopIcon,
                   homeIcon: props.homeIcon}
-  }
-  startClick() {
-    window.alert("Now monitoring " + this.state.source + " from " + this.state.monitor);
-  }
-  stopClick() {
-    window.alert("Monitoring stopped.");
   }
   render() {
     return(
@@ -214,7 +271,7 @@ class MonitorView extends View {
               <Button text={this.state.source} className={viewerButton} routePath={this.props.routes[1]}/>
             </div>
             <div className="row small-12 spacing-mv-xxl">
-                <Button text={this.state.startIcon} className={startButton} onClick={() => alert("No monitoring " + this.state.source + " from " + this.state.monitor)} routePath={this.props.routes[2]}/>
+                <Button text={this.state.startIcon} className={startButton} onClick={() => alert("Now monitoring " + this.state.source + " from " + this.state.monitor)} routePath={this.props.routes[2]}/>
                 <Button text={this.state.stopIcon} className={stopButton} onClick={() => alert("Monitoring stopped.")} routePath={this.props.routes[3]}/>
                 <Button text={this.state.homeIcon} className={homeButton} routePath={this.props.routes[4]}/>
             </div>
